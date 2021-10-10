@@ -21,6 +21,7 @@ public:
 	virtual void SetupInputComponent() override;
 private:
 	virtual void MoveForward(float InAxisValue);
+	virtual void MoveRight(float InAxisValue);
 
 	UPROPERTY()
 	class ATankPawn* TankPawn;
