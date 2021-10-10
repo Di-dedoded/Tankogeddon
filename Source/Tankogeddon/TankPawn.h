@@ -6,7 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "TankPawn.generated.h"
 
-class UStaticMeshComponent;
 
 UCLASS()
 class TANKOGEDDON_API ATankPawn : public APawn
@@ -24,16 +23,32 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* TurretMesh;
 
-
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	class USpringArmComponent* SpringArm;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	class UCameraComponent* Camera;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	class UArrowComponent* CannonSpawnPoint;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed = 100.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	float MovementSmootheness = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	float RotationSmootheness = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
+	float TurretRotationSmootheness = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
+	TSubclassOf<class ACannon> DefaultCannonClass;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,7 +61,26 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveForward(float InAxisValue);
 
-private:
-	float TargetMoveForwardAxis = 0.f;
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void RotateRight(float InAxisValue);
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetTurretTargetPosition(const FVector& TargetPosition);
+
+	UFUNCTION(BlueprintCallable, Category = "Turret")
+	void Fire();
+
+private:
+	void SetupCannon();
+
+	UPROPERTY()
+	class ACannon* Cannon = nullptr;
+
+	float CurrentMoveForwardAxis = 0.f;
+	float TargetMoveForwardAxis = 0.f;
+	float CurrentRotateRightAxis = 0.f;
+	float TargetRotateRightAxis = 0.f;
+
+
+	FVector TurretTargetPosition;
 };

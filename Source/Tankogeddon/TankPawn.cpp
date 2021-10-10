@@ -5,6 +5,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Tankogeddon.h"
+#include "Math/UnrealMathUtility.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Engine/World.h"
+#include "Cannon.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -26,12 +32,17 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	CannonSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
+	CannonSpawnPoint->SetupAttachment(TurretMesh);
 }
 
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetupCannon();
 	
 }
 
@@ -39,13 +50,58 @@ void ATankPawn::BeginPlay()
 void ATankPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	FVector NewActorLocation = GetActorLocation() + GetActorForwardVector() * MoveSpeed * TargetMoveForwardAxis * DeltaTime;
+
+	CurrentMoveForwardAxis = FMath::Lerp(CurrentMoveForwardAxis, TargetMoveForwardAxis, MovementSmootheness);
+	FVector NewActorLocation = GetActorLocation() + GetActorForwardVector() * MoveSpeed * CurrentMoveForwardAxis * DeltaTime;
 	SetActorLocation(NewActorLocation);
+
+	CurrentRotateRightAxis = FMath::Lerp(CurrentRotateRightAxis, TargetRotateRightAxis, RotationSmootheness);
+	float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
+	SetActorRotation(FRotator(0.f,Rotation, 0.f));
+
+	//UE_LOG(LogTankogeddon, Verbose, TEXT("CurrentRotateRightAxis: %f"), CurrentRotateRightAxis);
+
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TurretTargetPosition);
+	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TurretMesh->SetWorldRotation(FMath::Lerp(CurrentRotation, TargetRotation, TurretRotationSmootheness));
 }
 
 void ATankPawn::MoveForward(float InAxisValue)
 {
 	TargetMoveForwardAxis = InAxisValue;
+}
+
+void ATankPawn::RotateRight(float InAxisValue)
+{
+	TargetRotateRightAxis = InAxisValue;
+}
+
+void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
+{
+	TurretTargetPosition = TargetPosition;
+}
+
+void ATankPawn::Fire()
+{
+	if (Cannon)
+	{
+		Cannon->Fire();
+	}
+}
+
+void ATankPawn::SetupCannon()
+{
+	if (Cannon)
+	{
+		Cannon->Destroy();
+	}
+
+	FActorSpawnParameters Params;
+	Params.Instigator = this;
+	Params.Owner = this;
+	Cannon = GetWorld()->SpawnActor<ACannon>(DefaultCannonClass, Params);
+	Cannon->AttachToComponent(CannonSpawnPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
