@@ -32,14 +32,15 @@ protected:
 	ECannonType Type = ECannonType::FireProjectile;
 
 	FTimerHandle ReloadTimerHandle;
-
+	
+	int32 Clip = 0;
 	bool bIsReadyToFire = false;
 
 public:
 	ACannon();
 
 	void Fire();
-
+	void FireSpecial();
 	bool IsReadyToFire();
 
 protected:

@@ -40,6 +40,26 @@ void ACannon::Fire()
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
 }
 
+void ACannon::FireSpecial()
+{
+	if (!bIsReadyToFire)
+	{
+		return;
+	}
+	bIsReadyToFire = false;
+
+	if (Type == ECannonType::FireProjectile)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Green, TEXT("Fire Trace"));
+	}
+	else if (Type == ECannonType::FireTrace)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Green, TEXT("Fire Projectile"));		
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
+}
+
 bool ACannon::IsReadyToFire()
 {
 	return bIsReadyToFire;
@@ -49,7 +69,7 @@ bool ACannon::IsReadyToFire()
 void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Clip = 10;
 	bIsReadyToFire = true;
 	
 }
@@ -61,7 +81,16 @@ void ACannon::EndPlay(EEndPlayReason::Type EndPlayReason)
 }
 
 void ACannon::Reload()
-{
-	bIsReadyToFire = true;
+{	
+	--Clip;
+	if (Clip > 0)
+	{
+		bIsReadyToFire = true;
+	}
+	else
+	{
+		bIsReadyToFire = false;
+		GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Green, TEXT("Clip is empty"));
+	}
 }
 
