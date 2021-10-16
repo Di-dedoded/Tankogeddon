@@ -23,7 +23,7 @@ protected:
 	float FireRate = 1.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
-	float FireRange = 1000.f;
+	float FireRange = 10000.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
 	float FireDamage = 1.f;
@@ -32,7 +32,7 @@ protected:
 	bool bHasSpecialFire = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-	int32 MaxAmmo = 10;
+	int32 MaxAmmo = 50;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 1), Category = "Fire params")
 	int32 NumShotsInSeries = 1;
@@ -56,9 +56,10 @@ public:
 
 	void Fire();
 	void FireSpecial();
-
 	bool IsReadyToFire();
 	bool HasSpecialFire() const;
+	void SetVisibility(bool bIsVisible);
+	void AddAmmo(int32 InNumAmmo);
 
 protected:
 	virtual void BeginPlay() override;

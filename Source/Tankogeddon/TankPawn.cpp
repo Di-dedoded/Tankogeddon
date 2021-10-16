@@ -88,25 +88,25 @@ void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
 
 void ATankPawn::Fire()
 {
-	if (Cannon)
+	if (ActiveCannon)
 	{
-		Cannon->Fire();
+		ActiveCannon->Fire();
 	}
 }
 
 void ATankPawn::FireSpecial()
 {
-	if (Cannon)
+	if (ActiveCannon)
 	{
-		Cannon->FireSpecial();
+		ActiveCannon->FireSpecial();
 	}
 }
 
 void ATankPawn::SetupCannon(TSubclassOf<class ACannon> InCannonClass)
 {
-	if (Cannon)
+	if (ActiveCannon)
 	{
-		Cannon->Destroy();
+		ActiveCannon->Destroy();
 	}
 
 	if (InCannonClass)
@@ -114,9 +114,28 @@ void ATankPawn::SetupCannon(TSubclassOf<class ACannon> InCannonClass)
 		FActorSpawnParameters Params;
 		Params.Instigator = this;
 		Params.Owner = this;
-		Cannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
-		Cannon->AttachToComponent(CannonSpawnPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
+		ActiveCannon->AttachToComponent(CannonSpawnPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
 
 	}
 }
 
+void ATankPawn::SwapCannon()
+{
+	Swap(ActiveCannon, InactiveCannon);
+	if (ActiveCannon)
+	{
+		ActiveCannon->SetVisibility(true);
+	}
+
+	if (InactiveCannon)
+	{
+		InactiveCannon->SetVisibility(false);
+	}
+}
+
+class ACannon* ATankPawn::GetActiveCannon() const
+{
+	return ActiveCannon;
+}

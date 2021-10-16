@@ -74,9 +74,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Turret")
 	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
 
+	UFUNCTION(BlueprintCallable, Category = "Turret")
+	void SwapCannon();
+
+	UFUNCTION(BlueprintPure, Category = "Turret")
+	class ACannon* GetActiveCannon() const;
+
 private:
 	UPROPERTY()
-	class ACannon* Cannon = nullptr;
+	class ACannon* ActiveCannon = nullptr;
+
+	UPROPERTY()
+	ACannon* InactiveCannon = nullptr;
 
 	float CurrentMoveForwardAxis = 0.f;
 	float TargetMoveForwardAxis = 0.f;
