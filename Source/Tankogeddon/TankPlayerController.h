@@ -27,7 +27,6 @@ private:
 	void Fire();
 	void FireSpecial();
 
-
 	UPROPERTY()
 	class ATankPawn* TankPawn;
 };
