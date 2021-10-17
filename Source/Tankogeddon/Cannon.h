@@ -20,7 +20,7 @@ protected:
 	class UArrowComponent* ProjectileSpawnPoint;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-	float FireRate = 1.f;
+	float FireRate = 1.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
 	float FireRange = 10000.f;

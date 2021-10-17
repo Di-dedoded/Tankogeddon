@@ -95,7 +95,7 @@ void ACannon::BeginPlay()
 	Super::BeginPlay();
 
 	bIsReadyToFire = true;
-	NumAmmo = 10;
+	NumAmmo = MaxAmmo;
 	ShotsLeft = 0;
 }
 
@@ -122,6 +122,7 @@ void ACannon::Shot()
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
 		if (Projectile)
 		{
+			Projectile->SetInstigator(GetInstigator());
 			Projectile->Start();
 		}
 	}

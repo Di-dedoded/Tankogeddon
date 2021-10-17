@@ -5,6 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Tankogeddon.h"
+#include "Damageable.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -18,7 +19,6 @@ AProjectile::AProjectile()
 	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnMeshHit);
 	RootComponent = Mesh;
 }
-
 
 void AProjectile::Start()
 {
@@ -43,9 +43,24 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 {
 	UE_LOG(LogTankogeddon, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 
+	if (OtherActor == GetInstigator())
+	{
+		Destroy();
+		return;
+	}
+
 	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
 	{
 		OtherActor->Destroy();
 	}
+	else if (IDamageable* Damageable = Cast<IDamageable>(OtherActor))
+	{
+		FDamageData DamageData;
+		DamageData.DamageValue = Damage;
+		DamageData.Instigator = GetInstigator();
+		DamageData.DamageMaker = this;
+		Damageable->TakeDamage(DamageData);
+	}
+
 	Destroy();
 }
