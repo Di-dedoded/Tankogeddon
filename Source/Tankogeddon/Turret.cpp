@@ -119,6 +119,7 @@ void ATurret::Fire()
 void ATurret::OnHealthChanged_Implementation(float Damage)
 {
 	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
+	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s current health:%f "), *GetName(), HealthComponent->GetHealth());
 }
 
 void ATurret::OnDie_Implementation()

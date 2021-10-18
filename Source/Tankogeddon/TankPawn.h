@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Damageable.h"
+#include "HealthComponent.h"
+#include "Components/BoxComponent.h"
 #include "TankPawn.generated.h"
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public APawn
+class TANKOGEDDON_API ATankPawn : public APawn, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -31,6 +34,12 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	class UArrowComponent* CannonSpawnPoint;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	class UBoxComponent* HitCollider;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	class UHealthComponent* HealthComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed = 100.f;
 
@@ -51,6 +60,12 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void Die();
+
+	UFUNCTION()
+	void DamageTaked(float DamageValue);
 
 public:
 	// Called every frame
@@ -79,6 +94,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Turret")
 	class ACannon* GetActiveCannon() const;
+
+	virtual void TakeDamage(const FDamageData& DamageData) override;
 
 private:
 	UPROPERTY()

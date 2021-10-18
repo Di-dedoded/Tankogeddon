@@ -8,6 +8,7 @@
 #include "Tankogeddon.h"
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
+#include "Damageable.h"
 
 // Sets default values
 ACannon::ACannon()
@@ -137,15 +138,28 @@ void ACannon::Shot()
 		TraceParams.bReturnPhysicalMaterial = false;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
 		{
-			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.5f, 0, 5.f);
+			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.5f, 0, 10.f);
 			if (HitResult.Actor.IsValid() && HitResult.Component.IsValid(), HitResult.Component->GetCollisionObjectType() == ECC_Destructible)
 			{
 				HitResult.Actor->Destroy();
 			}
+			else if (IDamageable* Damageable = Cast<IDamageable>(HitResult.Actor))
+			{
+				AActor* _Instigator = GetInstigator();
+				if (HitResult.Actor != _Instigator)
+				{
+					FDamageData DamageData;
+					DamageData.DamageValue = FireDamage;
+					DamageData.Instigator = _Instigator;
+					DamageData.DamageMaker = this;
+					Damageable->TakeDamage(DamageData);
+				}
+			}
+
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 0.5f, 0, 5.f);
+			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 0.5f, 0, 10.f);
 		}
 	}
 

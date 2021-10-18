@@ -50,6 +50,9 @@ private:
 	FTimerHandle ReloadTimerHandle;
 	FTimerHandle SeriesTimerHandle;
 	bool bIsReadyToFire = false;
+	
+	UPROPERTY()
+		class APawn* PlayerPawn;
 
 public:
 	ACannon();
