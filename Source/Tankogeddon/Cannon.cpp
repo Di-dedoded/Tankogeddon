@@ -141,7 +141,7 @@ void ACannon::Shot()
 
 		if (ShootShake)
 		{
-			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShake);
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(ShootShake);
 		}
 	}
 	if (Type == ECannonType::FireProjectile)

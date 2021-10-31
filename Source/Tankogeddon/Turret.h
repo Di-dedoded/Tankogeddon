@@ -35,6 +35,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 		TSubclassOf<class ACannon> CannonClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+		class UParticleSystem* DestuctionParticleSystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+		class USoundBase* DestructionSound;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
 		float TargetingRange = 1000.f;
 
