@@ -20,89 +20,110 @@ public:
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	class UStaticMeshComponent* BodyMesh;
+		class UStaticMeshComponent* BodyMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	class UStaticMeshComponent* TurretMesh;
+		class UStaticMeshComponent* TurretMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	class USpringArmComponent* SpringArm;
+		class USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	class UCameraComponent* Camera;
+		class UCameraComponent* Camera;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	class UArrowComponent* CannonSpawnPoint;
+		class UArrowComponent* CannonSpawnPoint;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	class UBoxComponent* HitCollider;
+		class UBoxComponent* HitCollider;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	class UHealthComponent* HealthComponent;
+		class UHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
-	float MoveSpeed = 100.f;
+		float MoveSpeed = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
-	float RotationSpeed = 100.f;
+		float RotationSpeed = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	float MovementSmootheness = 0.5f;
+		float MovementSmootheness = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	float RotationSmootheness = 0.5f;
+		float RotationSmootheness = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
-	float TurretRotationSmootheness = 0.5f;
+		float TurretRotationSmootheness = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
-	TSubclassOf<class ACannon> DefaultCannonClass;
+		TSubclassOf<class ACannon> DefaultCannonClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params", Meta = (MakeEditWidget = true))
+		TArray<FVector> PatrollingPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params")
+		float MovementAccuracy = 50.f;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void Die();
+		void Die();
 
 	UFUNCTION()
-	void DamageTaked(float DamageValue);
+		void DamageTaked(float DamageValue);
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void MoveForward(float InAxisValue);
+		void MoveForward(float InAxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void RotateRight(float InAxisValue);
+		void RotateRight(float InAxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")
-	void SetTurretTargetPosition(const FVector& TargetPosition);
+		void SetTurretTargetPosition(const FVector& TargetPosition);
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")
-	void Fire();
+		void Fire();
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")
-	void FireSpecial();
+		void FireSpecial();
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")
-	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
+		void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")
-	void SwapCannon();
+		void SwapCannon();
 
 	UFUNCTION(BlueprintPure, Category = "Turret")
-	class ACannon* GetActiveCannon() const;
+		class ACannon* GetActiveCannon() const;
+
+	UFUNCTION(BlueprintPure, Category = "Turret")
+	FVector GetTurretForwardVector();
 
 	virtual void TakeDamage(const FDamageData& DamageData) override;
 
+	UFUNCTION(BlueprintPure, Category = "AI|Move params")
+		const TArray<FVector>& GetPatrollingPoints()
+	{
+		return PatrollingPoints;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "AI|Move params")
+		float GetMovementAccuracy()
+	{
+		return MovementAccuracy;
+	}
+
 private:
 	UPROPERTY()
-	class ACannon* ActiveCannon = nullptr;
+		class ACannon* ActiveCannon = nullptr;
 
 	UPROPERTY()
-	ACannon* InactiveCannon = nullptr;
+		ACannon* InactiveCannon = nullptr;
 
 	float CurrentMoveForwardAxis = 0.f;
 	float TargetMoveForwardAxis = 0.f;

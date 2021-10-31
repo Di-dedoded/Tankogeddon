@@ -63,7 +63,9 @@ void ATankPawn::Die()
 
 void ATankPawn::DamageTaked(float DamageValue)
 {
-	UE_LOG(LogTankogeddon, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	//UE_LOG(LogTankogeddon, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	UE_LOG(LogTankogeddon, Log, TEXT("Tank %s taked damage:%f "), *GetName(), DamageValue);
+	UE_LOG(LogTankogeddon, Log, TEXT("Tank %s current health:%f "), *GetName(), HealthComponent->GetHealth());
 }
 
 // Called every frame
@@ -161,6 +163,10 @@ class ACannon* ATankPawn::GetActiveCannon() const
 	return ActiveCannon;
 }
 
+FVector ATankPawn::GetTurretForwardVector()
+{
+	return TurretMesh->GetForwardVector();
+}
 
 void ATankPawn::TakeDamage(const FDamageData& DamageData)
 {

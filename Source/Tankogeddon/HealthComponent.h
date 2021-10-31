@@ -25,10 +25,10 @@ public:
 		float MaxHealth = 10.f;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnHealthChanged OnHealthChanged;
+	FOnHealthChanged OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnDie OnDie;
+	FOnDie OnDie;
 
 	UFUNCTION(BlueprintCallable, Category = "Health Component")
 		void TakeDamage(const FDamageData& DamageData);
