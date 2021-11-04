@@ -24,6 +24,9 @@ ATankFactory::ATankFactory()
 	BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
 	BuildingMesh->SetupAttachment(SceneComp);
 
+	DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Mesh"));
+	DestroyedMesh->SetupAttachment(SceneComp);
+
 	TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
 	TankSpawnPoint->SetupAttachment(SceneComp);
 
@@ -45,6 +48,9 @@ void ATankFactory::TakeDamage(const FDamageData& DamageData)
 void ATankFactory::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BuildingMesh->SetVisibility(true);
+	DestroyedMesh->SetVisibility(false);
 
 	GetWorld()->GetTimerManager().SetTimer(SpawnTankTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true, SpawnTankRate);
 
@@ -72,7 +78,8 @@ void ATankFactory::Die()
 		MapLoader->SetIsActivated(true);
 	}
 
-	Destroy();
+	BuildingMesh->SetVisibility(false);
+	DestroyedMesh->SetVisibility(true);
 }
 
 void ATankFactory::DamageTaked(float DamageValue)
