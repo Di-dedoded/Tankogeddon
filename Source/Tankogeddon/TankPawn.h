@@ -59,10 +59,10 @@ protected:
 		TSubclassOf<class ACannon> DefaultCannonClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params", Meta = (MakeEditWidget = true))
-		TArray<FVector> PatrollingPoints;
+	TArray<class ATargetPoint*> PatrollingPoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params")
-		float MovementAccuracy = 50.f;
+	float MovementAccuracy = 50.f;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -106,8 +106,14 @@ public:
 
 	virtual void TakeDamage(const FDamageData& DamageData) override;
 
+	UFUNCTION(BlueprintCallable, Category = "AI|Move params")
+	void SetPatrollingPoints(const TArray<class ATargetPoint*>& InPoints)
+	{
+		PatrollingPoints = InPoints;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "AI|Move params")
-		const TArray<FVector>& GetPatrollingPoints()
+	const TArray<class ATargetPoint*>& GetPatrollingPoints() const
 	{
 		return PatrollingPoints;
 	}
