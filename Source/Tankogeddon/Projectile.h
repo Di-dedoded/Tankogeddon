@@ -24,16 +24,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 		float Damage = 1.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics")
+		float Mass = 1.f;
+
 
 public:
 	AProjectile();
 
-	void Start();
+	virtual void Start();
+	virtual void Stop();
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	UFUNCTION()
-		void OnMeshHit(class UPrimitiveComponent* HittedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult);
+		virtual void OnMeshHit(class UPrimitiveComponent* HittedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult);
 
 private:
 	FVector StartPosition;

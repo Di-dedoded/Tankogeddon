@@ -6,23 +6,48 @@
 #include "Components/StaticMeshComponent.h"
 #include "Tankogeddon.h"
 #include "Damageable.h"
+#include "ActorPoolSubsystem.h"
+
 
 // Sets default values
 AProjectile::AProjectile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	PrimaryActorTick.TickInterval = 0.005f;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnMeshHit);
+	Mesh->SetVisibility(true);
 	RootComponent = Mesh;
 }
 
+
 void AProjectile::Start()
 {
+	PrimaryActorTick.SetTickFunctionEnable(true);
 	StartPosition = GetActorLocation();
+	Mesh->SetVisibility(true);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AProjectile::Stop()
+{
+	PrimaryActorTick.SetTickFunctionEnable(false);
+	Mesh->SetVisibility(false);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	UActorPoolSubsystem* Pool = GetWorld()->GetSubsystem<UActorPoolSubsystem>();
+	if (Pool->IsActorInPool(this))
+	{
+		Pool->ReturnActor(this);
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 // Called every frame
@@ -35,7 +60,7 @@ void AProjectile::Tick(float DeltaTime)
 
 	if (FVector::Dist(GetActorLocation(), StartPosition) > FireRange)
 	{
-		Destroy();
+		Stop();
 	}
 }
 
@@ -47,6 +72,12 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 	{
 		Destroy();
 		return;
+	}
+
+	if (OtherComp->IsSimulatingPhysics())
+	{
+		FVector Impulse = Mass * MoveSpeed * GetActorForwardVector();
+		OtherComp->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint);
 	}
 
 	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
@@ -62,5 +93,5 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 		Damageable->TakeDamage(DamageData);
 	}
 
-	Destroy();
+	Stop();
 }
