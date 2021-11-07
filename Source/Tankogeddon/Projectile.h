@@ -24,6 +24,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 		float Damage = 1.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+		bool bEnableRadialDamage = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+		float ExplosionRange = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+		float ExplosionImpulse = 100.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics")
 		float Mass = 1.f;
 
@@ -39,6 +48,7 @@ protected:
 	UFUNCTION()
 		virtual void OnMeshHit(class UPrimitiveComponent* HittedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult);
 
-private:
+	void ApplyDamage(AActor* Actor, UPrimitiveComponent* Component, const FHitResult& Hit, const FVector& Impulse);
+
 	FVector StartPosition;
 };

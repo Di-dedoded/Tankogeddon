@@ -68,23 +68,75 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 {
 	UE_LOG(LogTankogeddon, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 
-	if (OtherActor == GetInstigator())
+	//if (OtherActor == GetInstigator())
+	if (bEnableRadialDamage)
 	{
-		Destroy();
+		FVector StartPos = GetActorLocation();
+		FVector EndPos = StartPos + FVector(0.1f);
+
+		FCollisionShape Shape = FCollisionShape::MakeSphere(ExplosionRange);
+		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+		Params.AddIgnoredActor(this);
+		Params.bTraceComplex = true;
+		Params.TraceTag = "Explode Trace";
+		TArray<FHitResult> AttackHit;
+
+		FQuat Rotation = FQuat::Identity;
+
+		GetWorld()->DebugDrawTraceTag = "Explode Trace";
+
+		bool bSweepResult = GetWorld()->SweepMultiByChannel
+		(
+			AttackHit,
+			StartPos,
+			EndPos,
+			Rotation,
+			ECollisionChannel::ECC_Visibility,
+			Shape,
+			Params
+		);
+
+		if (bSweepResult)
+		{
+			for (FHitResult SweepHitResult : AttackHit)
+			{
+				AActor* HitActor = SweepHitResult.GetActor();
+				if (!HitActor)
+					continue;
+
+				FVector ForceVector = HitActor->GetActorLocation() - GetActorLocation();
+				ApplyDamage(HitActor, Cast<UPrimitiveComponent>(HitActor->GetRootComponent()), SweepHitResult, ForceVector * ExplosionImpulse);
+			}
+		}
+	}
+	else
+	{
+		ApplyDamage(OtherActor, OtherComp, HitResult, Mass * MoveSpeed * GetActorForwardVector());
+	}
+
+	Stop();
+}
+
+void AProjectile::ApplyDamage(AActor* Actor, UPrimitiveComponent* Component, const FHitResult& Hit, const FVector& Impulse)
+{
+	if (Actor == GetInstigator())
+	{
+		//Destroy();
 		return;
 	}
 
-	if (OtherComp->IsSimulatingPhysics())
+	if (Component && Component->IsSimulatingPhysics())
 	{
-		FVector Impulse = Mass * MoveSpeed * GetActorForwardVector();
-		OtherComp->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint);
+		//FVector Impulse = Mass * MoveSpeed * GetActorForwardVector();
+		//OtherComp->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint);
+		Component->AddImpulseAtLocation(Impulse, Hit.ImpactPoint);
 	}
 
-	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
+	if (Actor && Component && Component->GetCollisionObjectType() == ECC_Destructible)
 	{
-		OtherActor->Destroy();
+		Actor->Destroy();
 	}
-	else if (IDamageable* Damageable = Cast<IDamageable>(OtherActor))
+	else if (IDamageable* Damageable = Cast<IDamageable>(Actor))
 	{
 		FDamageData DamageData;
 		DamageData.DamageValue = Damage;
@@ -93,5 +145,5 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 		Damageable->TakeDamage(DamageData);
 	}
 
-	Stop();
+	//Stop();
 }
