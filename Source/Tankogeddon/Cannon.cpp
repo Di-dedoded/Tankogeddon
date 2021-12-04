@@ -1,15 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "Cannon.h"
-#include "../../../../UE_4.27/Engine/Source/Runtime/Engine/Classes/Components/SceneComponent.h"
-#include "../../../../UE_4.27/Engine/Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h"
-#include "../../../../UE_4.27/Engine/Source/Runtime/Engine/Classes/Components/ArrowComponent.h"
-#include "../../../../UE_4.27/Engine/Source/Runtime/Engine/Classes/Engine/Engine.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Tankogeddon.h"
+#include "Projectile.h"
+#include "DrawDebugHelpers.h"
+#include "Damageable.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Components/AudioComponent.h"
+#include "Camera/CameraShakeBase.h"
+#include "GameFramework/ForceFeedbackEffect.h"
 
 // Sets default values
 ACannon::ACannon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
 	USceneComponent* SceeneCpm = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = SceeneCpm;
 
@@ -18,31 +28,76 @@ ACannon::ACannon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
 	ProjectileSpawnPoint->SetupAttachment(Mesh);
+
+	ShootEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Shoot Effect"));
+	ShootEffect->SetupAttachment(ProjectileSpawnPoint);
+
+	AudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio Effect"));
+	AudioEffect->SetupAttachment(ProjectileSpawnPoint);
 }
 
 void ACannon::Fire()
 {
-	if (!bIsReadyToFire)
+	if (!IsReadyToFire())
 	{
 		return;
 	}
 	bIsReadyToFire = false;
+	--NumAmmo;
+	ShotsLeft = NumShotsInSeries;
+	Shot();
+
+	UE_LOG(LogTankogeddon, Log, TEXT("Fire! Ammo left: %d"), NumAmmo);
+}
+
+void ACannon::FireSpecial()
+{
+	if (!HasSpecialFire() || !IsReadyToFire())
+	{
+		return;
+	}
+
+	bIsReadyToFire = false;
+	--NumAmmo;
 
 	if (Type == ECannonType::FireProjectile)
 	{
-		GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Green, TEXT("Fire Projectile"));
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, TEXT("Fire special - projectile"));
+
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		if (Projectile)
+		{
+			Projectile->Start();
+		}
 	}
-	else if (Type == ECannonType::FireTrace)
+	else
 	{
-		GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Green, TEXT("Fire Trace"));
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, TEXT("Fire special - trace"));
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
+	UE_LOG(LogTankogeddon, Log, TEXT("FireSpecial! Ammo left: %d"), NumAmmo);
 }
 
 bool ACannon::IsReadyToFire()
 {
-	return bIsReadyToFire;
+	return bIsReadyToFire && NumAmmo > 0 && ShotsLeft == 0;
+}
+
+bool ACannon::HasSpecialFire() const
+{
+	return bHasSpecialFire;
+}
+
+void ACannon::SetVisibility(bool bIsVisible)
+{
+	Mesh->SetHiddenInGame(!bIsVisible);
+}
+
+void ACannon::AddAmmo(int32 InNumAmmo)
+{
+	NumAmmo = FMath::Clamp(NumAmmo + InNumAmmo, 0, MaxAmmo);
+	UE_LOG(LogTankogeddon, Log, TEXT("AddAmmo(%d)! NumAmmo: %d"), InNumAmmo, NumAmmo);
 }
 
 // Called when the game starts or when spawned
@@ -51,13 +106,16 @@ void ACannon::BeginPlay()
 	Super::BeginPlay();
 
 	bIsReadyToFire = true;
-	
+	NumAmmo = MaxAmmo;
+	ShotsLeft = 0;
 }
 
 void ACannon::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
 	GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(SeriesTimerHandle);
 }
 
 void ACannon::Reload()
@@ -65,3 +123,81 @@ void ACannon::Reload()
 	bIsReadyToFire = true;
 }
 
+void ACannon::Shot()
+{
+	check(ShotsLeft > 0);
+	ShootEffect->ActivateSystem();
+	AudioEffect->Play();
+
+	if (GetOwner() == GetWorld()->GetFirstPlayerController()->GetPawn())
+	{
+		if (ShootForceEffect)
+		{
+			FForceFeedbackParameters Params;
+			Params.bLooping = false;
+			Params.Tag = TEXT("ShootFFParams");
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(ShootForceEffect);
+		}
+
+		if (ShootShake)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(ShootShake);
+		}
+	}
+	if (Type == ECannonType::FireProjectile)
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1, FColor::Green, TEXT("Fire - projectile"));
+
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		if (Projectile)
+		{
+			Projectile->SetInstigator(GetInstigator());
+			Projectile->Start();
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1, FColor::Green, TEXT("Fire - trace"));
+
+		FHitResult HitResult;
+		FVector TraceStart = ProjectileSpawnPoint->GetComponentLocation();
+		FVector TraceEnd = ProjectileSpawnPoint->GetComponentLocation() + ProjectileSpawnPoint->GetForwardVector() * FireRange;
+		FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
+		TraceParams.bReturnPhysicalMaterial = false;
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+		{
+			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.5f, 0, 10.f);
+			if (HitResult.Actor.IsValid() && HitResult.Component.IsValid(), HitResult.Component->GetCollisionObjectType() == ECC_Destructible)
+			{
+				HitResult.Actor->Destroy();
+			}
+			else if (IDamageable* Damageable = Cast<IDamageable>(HitResult.Actor))
+			{
+				AActor* _Instigator = GetInstigator();
+				if (HitResult.Actor != _Instigator)
+				{
+					FDamageData DamageData;
+					DamageData.DamageValue = FireDamage;
+					DamageData.Instigator = _Instigator;
+					DamageData.DamageMaker = this;
+					Damageable->TakeDamage(DamageData);
+				}
+			}
+
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 0.5f, 0, 10.f);
+		}
+	}
+
+	if (--ShotsLeft > 0)
+	{
+		const float NextShotTime = SeriesLength / (NumShotsInSeries - 1);
+		GetWorld()->GetTimerManager().SetTimer(SeriesTimerHandle, this, &ACannon::Shot, NextShotTime, false);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
+	}
+}
