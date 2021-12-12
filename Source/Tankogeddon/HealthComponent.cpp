@@ -26,7 +26,7 @@ void UHealthComponent::TakeDamage(const FDamageData& DamageData)
             OnDie.Broadcast();
         }
 
-        //Cast<ATankogeddonGameModeBase>(GetWorld()->GetAuthGameMode())->NotifyActorWasDestroyedByDamage(GetOwner(), DamageData);
+        Cast<ATankogeddonGameModeBase>(GetWorld()->GetAuthGameMode())->NotifyActorWasDestroyedByDamage(GetOwner(), DamageData);
     }
     else
     {
@@ -43,7 +43,7 @@ float UHealthComponent::GetHealth() const
     return CurrentHealth;
 }
 
-float UHealthComponent::GetHealthState() const
+float UHealthComponent::GetHealthState() const            //соотношение текущего здоровья к максимальному (от 0 до 1)
 {
     return CurrentHealth / MaxHealth;
 }

@@ -73,7 +73,7 @@ void ATankPawn::Tick(float DeltaTime)
     float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
     SetActorRotation(FRotator(0.f, Rotation, 0.f));
 
-    UE_LOG(LogTankogeddon, Verbose, TEXT("CurrentRotateRightAxis: %f"), CurrentRotateRightAxis);
+    //UE_LOG(LogTankogeddon, Verbose, TEXT("CurrentRotateRightAxis: %f"), CurrentRotateRightAxis);
 
     if (!bIsTurretTargetSet)
     {
@@ -189,4 +189,5 @@ void ATankPawn::DamageTaked_Implementation(float Damage)
 void ATankPawn::Die_Implementation()
 {
     Destroy();
+    ActiveCannon->Destroy();
 }
