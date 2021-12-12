@@ -7,14 +7,14 @@
 #include "ActorPoolSubsystem.generated.h"
 
 /**
- *
+ * 
  */
 UCLASS()
 class TANKOGEDDON_API UActorPoolSubsystem : public UWorldSubsystem
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-        DECLARE_LOG_CATEGORY_CLASS(LogActorPoolSubsystem, Log, Log);
+    DECLARE_LOG_CATEGORY_CLASS(LogActorPoolSubsystem, Log, Log);
 
 public:
     AActor* RetreiveActor(UClass* Class, const FTransform& Transform);
@@ -28,10 +28,10 @@ protected:
 
 private:
     UFUNCTION()
-        void OnActorDestroyed(AActor* Actor);
+    void OnActorDestroyed(AActor* Actor);
 
     UPROPERTY()
-        TArray<class AActor*> Actors;
+    TArray<class AActor*> Actors;
 
     TMap<UClass*, TArray<class AActor*>> InactiveActors;
 };

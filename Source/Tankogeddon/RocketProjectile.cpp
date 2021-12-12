@@ -6,17 +6,17 @@
 
 ARocketProjectile::ARocketProjectile()
 {
-	Mesh->BodyInstance.SetInstanceSimulatePhysics(true);
-	Mesh->BodyInstance.bLockZTranslation = true;
-	Mesh->SetEnableGravity(false);
+    Mesh->BodyInstance.SetInstanceSimulatePhysics(true);
+    Mesh->BodyInstance.bLockZTranslation = true;
+    Mesh->SetEnableGravity(false);
 }
 
 void ARocketProjectile::Tick(float DeltaSeconds)
 {
-	Mesh->AddForce(GetActorForwardVector() * EngineThrust);
+    Mesh->AddForce(GetActorForwardVector() * EngineThrust);
 
-	if (FVector::Dist(GetActorLocation(), StartPosition) > FireRange)
-	{
-		Stop();
-	}
+    if (FVector::Dist(GetActorLocation(), StartPosition) > FireRange)
+    {
+        Stop();
+    }
 }

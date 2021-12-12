@@ -8,45 +8,49 @@
 #include "HealthComponent.generated.h"
 
 
+//
+//DECLARE_EVENT(UHealthComponent, FOnDie);
+//DECLARE_EVENT_OneParam(UHealthComponent, FOnHealthChanged, float);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDie);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float, DamageValue);
 
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TANKOGEDDON_API UHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
+public:	
 	// Sets default values for this component's properties
 	UHealthComponent();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health values")
-		float MaxHealth = 10.f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health values")
+    float MaxHealth = 10.f;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnHealthChanged OnHealthChanged;
+    UPROPERTY(BlueprintAssignable)
+    FOnHealthChanged OnHealthChanged;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnDie OnDie;
+    UPROPERTY(BlueprintAssignable)
+    FOnDie OnDie;
 
-	UFUNCTION(BlueprintCallable, Category = "Health Component")
-		void TakeDamage(const FDamageData& DamageData);
+    UFUNCTION(BlueprintCallable, Category = "Health Component")
+    void TakeDamage(const FDamageData& DamageData);
 
-	UFUNCTION(BlueprintCallable, Category = "Health Component")
-		float GetHealth() const;
+    UFUNCTION(BlueprintCallable, Category = "Health Component")
+    float GetHealth() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Health Component")
-		float GetHealthState() const;
+    UFUNCTION(BlueprintCallable, Category = "Health Component")
+    float GetHealthState() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Health Component")
-		void AddHealth(float AddiditionalHealthValue);
+    UFUNCTION(BlueprintCallable, Category = "Health Component")
+    void AddHealth(float AddiditionalHealthValue);
 
 protected:
-	UPROPERTY()
-		float CurrentHealth = 0.f;
+    UPROPERTY()
+    float CurrentHealth = 0.f;
 
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
 
 };

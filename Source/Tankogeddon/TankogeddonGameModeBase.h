@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "GameStructs.h"
 #include "TankogeddonGameModeBase.generated.h"
 
 /**
@@ -14,4 +15,6 @@ class TANKOGEDDON_API ATankogeddonGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	void NotifyActorWasDestroyedByDamage(AActor* Actor, const FDamageData& DamageData);
 };

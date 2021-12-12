@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "TankogeddonGameModeBase.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -15,45 +16,48 @@ UHealthComponent::UHealthComponent()
 
 void UHealthComponent::TakeDamage(const FDamageData& DamageData)
 {
-	float TakedDamageValue = DamageData.DamageValue;
-	CurrentHealth -= TakedDamageValue;
+    float TakedDamageValue = DamageData.DamageValue;
+    CurrentHealth -= TakedDamageValue;
 
-	if (CurrentHealth <= 0.f)
-	{
-		if (OnDie.IsBound())
-		{
-			OnDie.Broadcast();
-		}
-	}
-	else
-	{
-		if (OnHealthChanged.IsBound())
-		{
-			OnHealthChanged.Broadcast(TakedDamageValue);
-		}
-	}
+    if (CurrentHealth <= 0.f)
+    {
+        if (OnDie.IsBound())
+        {
+            OnDie.Broadcast();
+        }
+
+        //Cast<ATankogeddonGameModeBase>(GetWorld()->GetAuthGameMode())->NotifyActorWasDestroyedByDamage(GetOwner(), DamageData);
+    }
+    else
+    {
+        if (OnHealthChanged.IsBound())
+        {
+            OnHealthChanged.Broadcast(TakedDamageValue);
+        }
+    }
 
 }
 
 float UHealthComponent::GetHealth() const
 {
-	return CurrentHealth;
+    return CurrentHealth;
 }
 
 float UHealthComponent::GetHealthState() const
 {
-	return CurrentHealth / MaxHealth;
+    return CurrentHealth / MaxHealth;
 }
 
 void UHealthComponent::AddHealth(float AddiditionalHealthValue)
 {
-	CurrentHealth = FMath::Clamp(CurrentHealth + AddiditionalHealthValue, 0.f, MaxHealth);
+    CurrentHealth = FMath::Clamp(CurrentHealth + AddiditionalHealthValue, 0.f, MaxHealth);
 }
 
 void UHealthComponent::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
 	CurrentHealth = MaxHealth;
 }
+
 

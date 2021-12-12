@@ -32,7 +32,8 @@ void UPhysicsMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 		return;
 	}
 
-	FVector NewActorLocation = Owner->GetActorLocation() + Velocity * DeltaTime + Gravity * FMath::Square(DeltaTime) / 2.f;
-	Velocity += Gravity * DeltaTime;
+	FVector NewActorLocation = Owner->GetActorLocation() + Velocity * DeltaTime - FVector::UpVector * Gravity * FMath::Square(DeltaTime) / 2.f;
+	Velocity += -FVector::UpVector * Gravity * DeltaTime;
 	Owner->SetActorLocation(NewActorLocation, true);
 }
+

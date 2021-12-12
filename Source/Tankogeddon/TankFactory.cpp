@@ -15,33 +15,33 @@
 // Sets default values
 ATankFactory::ATankFactory()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	USceneComponent* SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	RootComponent = SceneComp;
+    USceneComponent* SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+    RootComponent = SceneComp;
 
-	BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
-	BuildingMesh->SetupAttachment(SceneComp);
+    BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
+    BuildingMesh->SetupAttachment(SceneComp);
 
-	DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Mesh"));
-	DestroyedMesh->SetupAttachment(SceneComp);
+    DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Mesh"));
+    DestroyedMesh->SetupAttachment(SceneComp);
 
-	TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
-	TankSpawnPoint->SetupAttachment(SceneComp);
+    TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
+    TankSpawnPoint->SetupAttachment(SceneComp);
 
-	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
-	HitCollider->SetupAttachment(SceneComp);
+    HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+    HitCollider->SetupAttachment(SceneComp);
 
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
-	HealthComponent->OnDie.AddDynamic(this, &ATankFactory::Die);
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ATankFactory::DamageTaked);
+    HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+    HealthComponent->OnDie.AddDynamic(this, &ATankFactory::Die);
+    HealthComponent->OnHealthChanged.AddDynamic(this, &ATankFactory::DamageTaked);
 
 }
 
 void ATankFactory::TakeDamage(const FDamageData& DamageData)
 {
-	HealthComponent->TakeDamage(DamageData);
+    HealthComponent->TakeDamage(DamageData);
 }
 
 // Called when the game starts or when spawned
@@ -49,40 +49,48 @@ void ATankFactory::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BuildingMesh->SetVisibility(true);
-	DestroyedMesh->SetVisibility(false);
+    BuildingMesh->SetVisibility(true);
+    DestroyedMesh->SetVisibility(false);
 
-	GetWorld()->GetTimerManager().SetTimer(SpawnTankTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true, SpawnTankRate);
+    GetWorld()->GetTimerManager().SetTimer(SpawnTankTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true, SpawnTankRate);
 
 }
 
 void ATankFactory::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
+    Super::EndPlay(EndPlayReason);
 
-	GetWorld()->GetTimerManager().ClearTimer(SpawnTankTimerHandle);
+    GetWorld()->GetTimerManager().ClearTimer(SpawnTankTimerHandle);
 }
 
 void ATankFactory::SpawnNewTank()
 {
-	FTransform SpawnTransform(TankSpawnPoint->GetComponentRotation(), TankSpawnPoint->GetComponentLocation(), FVector(1.f));
-	ATankPawn* NewTank = GetWorld()->SpawnActorDeferred<ATankPawn>(SpawnTankClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);	
-	NewTank->SetPatrollingPoints(TankWayPoints);	
-	NewTank->FinishSpawning(SpawnTransform);
+    FTransform SpawnTransform(TankSpawnPoint->GetComponentRotation(), TankSpawnPoint->GetComponentLocation(), FVector(1.f));
+    ATankPawn* NewTank = GetWorld()->SpawnActorDeferred<ATankPawn>(SpawnTankClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    //
+    NewTank->SetPatrollingPoints(TankWayPoints);
+    //
+    NewTank->FinishSpawning(SpawnTransform);
 }
 
 void ATankFactory::Die()
 {
-	if (MapLoader)
-	{
-		MapLoader->SetIsActivated(true);
-	}
+    if (MapLoader)
+    {
+        MapLoader->SetIsActivated(true);
+    }
 
-	BuildingMesh->SetVisibility(false);
-	DestroyedMesh->SetVisibility(true);
+    BuildingMesh->SetVisibility(false);
+    DestroyedMesh->SetVisibility(true);
+    // or
+    // BuildingMesh->SetStaticMesh(Mesh);
+    // or
+    // GetWorld()->SpawnActor(DestroyedFactoryClass);
+    // Destroy();
 }
 
 void ATankFactory::DamageTaked(float DamageValue)
 {
-	UE_LOG(LogTankogeddon, Log, TEXT("Factory %s taked damage:%f "), *GetName(), DamageValue);
+    UE_LOG(LogTankogeddon, Log, TEXT("Factory %s taked damage:%f "), *GetName(), DamageValue);
 }
+

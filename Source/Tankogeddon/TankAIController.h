@@ -7,24 +7,24 @@
 #include "TankAIController.generated.h"
 
 /**
- *
+ * 
  */
 UCLASS()
 class TANKOGEDDON_API ATankAIController : public AAIController
 {
-    GENERATED_BODY()
-
+	GENERATED_BODY()
+	
 protected:
     UPROPERTY()
-        class ATankPawn* TankPawn;
+    class ATankPawn* TankPawn;
 
     int32 CurrentPatrolPointIndex = 0;
-
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-        float TargetingRange = 1000.f;
-
+    float TargetingRange = 1000.f;
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-        float Accuracy = 10.f;
+    float Accuracy = 10.f;
 
 protected:
     virtual void BeginPlay() override;

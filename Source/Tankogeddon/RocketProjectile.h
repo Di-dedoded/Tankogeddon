@@ -7,18 +7,18 @@
 #include "RocketProjectile.generated.h"
 
 /**
- *
+ * 
  */
 UCLASS()
 class TANKOGEDDON_API ARocketProjectile : public AProjectile
 {
 	GENERATED_BODY()
-
+	
 public:
 	ARocketProjectile();
 
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
-		float EngineThrust = 1.f;
+	float EngineThrust = 1.f;
 };

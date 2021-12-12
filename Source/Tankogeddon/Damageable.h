@@ -15,13 +15,13 @@ class UDamageable : public UInterface
 };
 
 /**
- *
+ * 
  */
 class TANKOGEDDON_API IDamageable
 {
 	GENERATED_BODY()
 
-		// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void TakeDamage(const FDamageData& DamageData) = 0;
 };
