@@ -74,6 +74,12 @@ public:
     void SetVisibility(bool bIsVisible);
     void AddAmmo(int32 InNumAmmo);
 
+    UFUNCTION(BlueprintCallable, Category = "Fire params")
+    float GetAmmoState() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Fire params")
+    int32 GetAmmo() const;
+
     bool IsBallistic() const;
     FVector GetCurrentBallisticTarget(float FloorAbsoluteHeight) const;
     // Returns false if can't do it

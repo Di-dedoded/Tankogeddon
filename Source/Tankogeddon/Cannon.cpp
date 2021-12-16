@@ -104,6 +104,16 @@ void ACannon::AddAmmo(int32 InNumAmmo)
     UE_LOG(LogTankogeddon, Log, TEXT("AddAmmo(%d)! NumAmmo: %d"), InNumAmmo, NumAmmo);
 }
 
+float ACannon::GetAmmoState() const
+{
+    return static_cast<float>(NumAmmo) / static_cast<float>(MaxAmmo);
+}
+
+int32 ACannon::GetAmmo() const
+{
+    return NumAmmo;
+}
+
 bool ACannon::IsBallistic() const
 {
     return Type == ECannonType::FireProjectile && ProjectileClass && ProjectileClass->IsChildOf<APhysicsProjectile>();
