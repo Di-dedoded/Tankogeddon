@@ -24,6 +24,11 @@ UUserWidget* AMyHUD::GetCurrentWidget()
     return CurrentWidget;
 }
 
+EWidgetID AMyHUD::GetPreviousWidgetID()
+{
+    return PreviousWidgetID;
+}
+
 void AMyHUD::RemoveCurrentWidgetFromViewport()
 {
     if (CurrentWidget)
@@ -50,6 +55,7 @@ UUserWidget* AMyHUD::AddWidgetToViewportByClass(TSubclassOf<UUserWidget> WidgetC
 
 UUserWidget* AMyHUD::UseWidget(EWidgetID widgetID, bool RemovePrevious, int32 ZOrder)
 {
+    PreviousWidgetID = CurrentWidgetID;
     TSubclassOf<UUserWidget> WidgetClassToUse = WidgetClases.FindRef(widgetID);
     if (CurrentWidgetID == widgetID)
     {

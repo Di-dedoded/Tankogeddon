@@ -23,8 +23,8 @@ protected:
     UPROPERTY(meta = (BindWidget))
     class UButton* NewGameBtn;
     
-    UPROPERTY(meta = (BindWidgetOptional))
-    class UButton* OptionsBtn;
+    //UPROPERTY(meta = (BindWidgetOptional))
+    //class UButton* OptionsBtn;
     
     UPROPERTY(meta = (BindWidget))
     class UButton* QuitBtn;
@@ -34,6 +34,9 @@ protected:
 
     UFUNCTION()
     void OnNewGameClicked();
+
+    //UFUNCTION()
+    //void OnOptionsClicked();
 
     UFUNCTION()
     void OnQuitClicked();

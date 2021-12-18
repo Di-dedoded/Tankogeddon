@@ -32,6 +32,8 @@ protected:
 
     EWidgetID CurrentWidgetID;
 
+    EWidgetID PreviousWidgetID;    
+
 public:
     void BeginPlay() override;
 
@@ -40,6 +42,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     UUserWidget* GetCurrentWidget();
+    
+    UFUNCTION(BlueprintPure)
+    EWidgetID GetPreviousWidgetID();
 
     UFUNCTION(BlueprintCallable)
     void RemoveCurrentWidgetFromViewport();

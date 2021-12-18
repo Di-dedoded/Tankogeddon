@@ -16,6 +16,11 @@ void UMainMenuWidget::NativeConstruct()
         NewGameBtn->OnClicked.AddDynamic(this,
             &UMainMenuWidget::OnNewGameClicked);
     }
+    //if (OptionsBtn)
+    //{
+    //    OptionsBtn->OnClicked.AddDynamic(this,
+    //        &UMainMenuWidget::OnOptionsClicked);
+    //}
     if (QuitBtn)
     {
         QuitBtn->OnClicked.AddDynamic(this,
@@ -28,7 +33,13 @@ void UMainMenuWidget::OnNewGameClicked()
     APlayerController* ATankPlayerController = GetWorld()->GetFirstPlayerController();
     ATankPlayerController->SetInputMode(FInputModeGameOnly());
     UGameplayStatics::OpenLevel(this, "M_Level_1", true);
+    ATankPlayerController->SetPause(false);
 }
+
+//void UMainMenuWidget::OnOptionsClicked()
+//{
+//
+//}
 
 void UMainMenuWidget::OnQuitClicked()
 {
