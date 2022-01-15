@@ -23,6 +23,10 @@ public:
 
     UPROPERTY()
     int32 Scores;
+
+	FSimpleMulticastDelegate OnMouseButtonUp;
+
+	void OnLeftMouseButton();
 	
 private:
 	void MoveForward(float InAxisValue);

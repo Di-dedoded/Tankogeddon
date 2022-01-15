@@ -12,11 +12,15 @@ void ATankPlayerController::BeginPlay()
 
     TankPawn = Cast<ATankPawn>(GetPawn());
     bShowMouseCursor = true;
+
+    bEnableClickEvents = true;
 }
 
 void ATankPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+
+    InputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ATankPlayerController::OnLeftMouseButton);
 
     InputComponent->BindAxis("MoveForward", this, &ATankPlayerController::MoveForward);
     InputComponent->BindAxis("RotateRight", this, &ATankPlayerController::RotateRight);
@@ -62,6 +66,11 @@ void ATankPlayerController::Tick(float DeltaSeconds)
     }
 
     DrawDebugLine(GetWorld(), TankPawn->GetActorLocation(), TankPawn->GetActorLocation() + TankPawn->GetTurretForwardVector() * 1000.f, FColor::Green, false, 0.1f, 0.f, 5.f);
+}
+
+void ATankPlayerController::OnLeftMouseButton()
+{
+    OnMouseButtonUp.Broadcast();
 }
 
 void ATankPlayerController::MoveForward(float InAxisValue)
